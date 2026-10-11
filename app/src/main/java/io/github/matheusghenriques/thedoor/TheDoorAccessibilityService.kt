@@ -445,11 +445,7 @@ class TheDoorAccessibilityService : AccessibilityService() {
         }
 
         val wasShown = overlayManager.isShown
-        // Preventive floating-Settings detection is part of the accessibility
-        // protection: if the user did not enable that toggle, opening Settings
-        // in popup/split-screen must not contain anything.
-        val floatingDetectionEnabled = protectionConfig.get().blockAccessibilitySettings
-        if (shield.onWindows(snapshots, floatingDetectionEnabled)) {
+        if (shield.onWindows(snapshots)) {
             if (!wasShown) {
                 overlayManager.show(cachedRedirectConfig.theDoorPhrase)
                 startOverlayPoll()
