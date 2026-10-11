@@ -79,6 +79,9 @@ class TheDoorAccessibilityService : AccessibilityService() {
         private const val WINDOW_SCAN_THROTTLE_MS = 150L
         private const val OVERLAY_POLL_MS = 1_000L
         private const val CONTENT_SCAN_MAX_NODES = 400
+        private const val RAPID_BLOCK_COUNT = 5
+        private const val RAPID_BLOCK_WINDOW_MS = 10_000L
+        private const val RAPID_BLOCK_DEDUP_MS = 50L
 
     }
 
@@ -311,7 +314,23 @@ class TheDoorAccessibilityService : AccessibilityService() {
         }
     }
 
+    private var rapidBlockCount = 0
+    private var lastBlockAt = 0L
+
     private fun triggerBlock() {
+        val blockNow = SystemClock.uptimeMillis()
+        val gap = blockNow - lastBlockAt
+        lastBlockAt = blockNow
+        if (gap >= RAPID_BLOCK_DEDUP_MS) {
+            rapidBlockCount = if (gap <= RAPID_BLOCK_WINDOW_MS) rapidBlockCount + 1 else 1
+            Log.d("DoorBug", "RapidBlock count=$rapidBlockCount gap=${gap}ms")
+            if (rapidBlockCount >= RAPID_BLOCK_COUNT) {
+                rapidBlockCount = 0
+                Log.d("DoorBug", "RapidBlock 5 blocks in chain -> lockScreenViaAdmin")
+                lockScreenViaAdmin()
+            }
+        }
+
         performGlobalAction(GLOBAL_ACTION_BACK)
 
         // Collapse stacked redirects: under event spam each triggerBlock used to post
