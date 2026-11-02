@@ -74,6 +74,12 @@ class TheDoorAccessibilityService : AccessibilityService() {
             listOf("install unknown apps", "instalar apps desconhecidos")
         private val BLOCKED_AUTO_BLOCKER =
             listOf("turn off auto blocker", "desativar o bloqueador automático")
+        // One UI QS tile-edit drawer handle ("Available controls handle, Double tap
+        // to close"). The EN string was verified on One UI 8 / Android 16; the pt-BR
+        // one is unverified — a wrong translation here means silent no-op on pt-BR
+        // devices (known keyword-matching gotcha), never a false block.
+        private val BLOCKED_QS_EDIT =
+            listOf("available controls", "controles disponíveis")
         private val CONTENT_BLOCKED_ACCESSIBILITY =
             listOf("aplicativos instalados", "installed apps")
         private const val WINDOW_SCAN_THROTTLE_MS = 150L
@@ -448,6 +454,13 @@ class TheDoorAccessibilityService : AccessibilityService() {
             return
         }
 
+        // QS tile-edit drawer open (blockVpn): BACK exits edit mode, closing the
+        // only path for adding a VPN on/off tile to the quick settings bar.
+        if (scanWindowsForQsEdit(windowList)) {
+            triggerBlock()
+            return
+        }
+
         val displayArea = currentDisplayArea()
         val snapshots = windowList.map { w ->
             val pkg = try {
@@ -514,6 +527,36 @@ class TheDoorAccessibilityService : AccessibilityService() {
             }
         }
         return null
+    }
+
+    /**
+     * One UI quick-settings tile-edit detection: the "Available controls" drawer
+     * (the only path for adding QS tiles) lives inside the same NotificationShade
+     * window as the normal shade, so window title/class cannot discriminate —
+     * only rendered content can. The handle node exists exclusively while the
+     * drawer is open (verified against a normal-QS baseline dump).
+     */
+    private fun scanWindowsForQsEdit(windows: List<AccessibilityWindowInfo>): Boolean {
+        val cfg = protectionConfig.get()
+        if (!cfg.blockVpn) return false
+        val keywords = BLOCKED_QS_EDIT
+        for (w in windows) {
+            val root = try {
+                w.root
+            } catch (_: Exception) {
+                null
+            } ?: continue
+            val pkg = try {
+                root.packageName?.toString()
+            } catch (_: Exception) {
+                null
+            } ?: continue
+            if (pkg != PackageConstants.SYSTEM_UI) continue
+            val content = collectNodeText(root)
+            if (content.isEmpty()) continue
+            if (keywords.any { content.lowercase().contains(it) }) return true
+        }
+        return false
     }
 
     private fun collectNodeText(root: AccessibilityNodeInfo): String {
