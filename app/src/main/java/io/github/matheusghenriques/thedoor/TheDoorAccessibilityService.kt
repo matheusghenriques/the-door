@@ -83,6 +83,12 @@ class TheDoorAccessibilityService : AccessibilityService() {
         private val CONTENT_BLOCKED_ACCESSIBILITY =
             listOf("aplicativos instalados", "installed apps")
         private const val WINDOW_SCAN_THROTTLE_MS = 150L
+        // Preventive floating-Settings starts are deferred this long so the service
+        // can veto known-exempt windows (device-credential screens, Samsung
+        // Bluetooth/Wi-Fi dialogs). Their discriminating className event arrives
+        // 40–390 ms after the window becomes visible to the scan (captured on
+        // device); the veto must land before the start fires.
+        private const val PREVENTIVE_DEFER_MS = 700L
         private const val OVERLAY_POLL_MS = 1_000L
         private const val CONTENT_SCAN_MAX_NODES = 400
         private const val RAPID_BLOCK_COUNT = 5
@@ -416,18 +422,29 @@ class TheDoorAccessibilityService : AccessibilityService() {
 
     /**
      * Device-credential challenge screens (ConfirmLockPassword* — the Secure Folder
-     * PIN fallback, lock-screen confirms, Play Store install confirms) are compact
-     * windows of the SETTINGS package: without this exclusion, blockSettingsPopups
-     * would contain them mid-auth and lock the user out. Matched by className, not
-     * window text, because the title is localized while the class is stable.
-     * Cleared when a non-View activity class reports outside this screen group.
+     * PIN fallback, lock-screen confirms, install confirms) and Samsung's Bluetooth
+     * pairing / Wi-Fi picker dialogs are compact windows of the SETTINGS package:
+     * without this exclusion, blockSettingsPopups would contain them and lock the
+     * user out of ordinary device operations. Matched by className, not window
+     * text, because titles are localized while the classes are stable (all
+     * captured on-device). Cleared when a non-View class reports outside this
+     * screen group. Samsung dialog windows are suppressed AND veto the deferred
+     * preventive start: their window may enter the scan before the first event.
      */
     private var suppressFloatingSettings = false
 
     private fun updateFloatingSettingsSuppression(pkg: String, className: String) {
         if (className.startsWith("android.view.") || className.startsWith("android.widget.")) return
-        suppressFloatingSettings =
-            pkg == PackageConstants.SETTINGS && className.contains("ConfirmLockPassword")
+        val exempted = pkg == PackageConstants.SETTINGS &&
+            (className.contains("ConfirmLockPassword") ||
+                className.contains("BluetoothScanDialog") ||
+                className.contains("WifiPickerDialog"))
+        if (exempted) {
+            suppressFloatingSettings = true
+            shield.vetoPreventiveStart()
+        } else {
+            suppressFloatingSettings = false
+        }
     }
 
     /**
@@ -493,12 +510,12 @@ class TheDoorAccessibilityService : AccessibilityService() {
         }
 
         val wasShown = overlayManager.isShown
-        // Preventive floating-Settings detection has its own toggle; device-credential
-        // challenge screens (Secure Folder PIN, etc.) are exempted so authentication
-        // is never crushed by the containment.
+        // Preventive floating-Settings detection has its own toggle; exempt screens
+        // (device-credential challenges, Samsung Bluetooth/Wi-Fi dialogs) suppress
+        // it, and the start itself is deferred so the veto can land in time.
         val floatingDetectionEnabled =
             protectionConfig.get().blockSettingsPopups && !suppressFloatingSettings
-        if (shield.onWindows(snapshots, floatingDetectionEnabled)) {
+        if (shield.onWindows(snapshots, floatingDetectionEnabled, PREVENTIVE_DEFER_MS)) {
             if (!wasShown) {
                 overlayManager.show(cachedRedirectConfig.theDoorPhrase)
                 startOverlayPoll()

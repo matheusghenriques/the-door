@@ -35,6 +35,8 @@ class ProtectionShield(
     private var absenceStartedAt = ABSENCE_UNSET
     private var escalationCount = 0
     private var lastEscalationAt = 0L
+    private var pendingPreventive = false
+    private var pendingPreventiveReadyAt = 0L
 
     val isIncidentActive: Boolean get() = activePackages.isNotEmpty()
 
@@ -43,8 +45,20 @@ class ProtectionShield(
      * calling it resets the absence timer (protection direction).
      */
     fun startIncident(pkg: String) {
+        pendingPreventive = false
         activePackages.add(pkg)
         absenceStartedAt = ABSENCE_UNSET
+    }
+
+    /**
+     * Cancels a deferred preventive start. Called by the service when an event
+     * carves out a known-exempt Settings window (device-credential screens,
+     * Samsung Bluetooth/Wi-Fi dialogs): such windows may already be visible to
+     * the window scan before their discriminating event arrives, so the only
+     * race-safe pattern is defer the preventive start and veto it later.
+     */
+    fun vetoPreventiveStart() {
+        pendingPreventive = false
     }
 
     /**
@@ -69,23 +83,46 @@ class ProtectionShield(
      * overlay should be visible right now.
      *
      * [floatingDetectionEnabled] gates the PREVENTIVE start of an incident on a
-     * floating Settings window (the service passes the accessibility-protection
-     * toggle — if the user did not enable that protection, opening Settings in
-     * popup/split-screen must not contain anything). Once an incident is active,
-     * a floating Settings window counts as presence regardless of the gate:
-     * retention rules never loosen.
+     * floating Settings window (the service passes the blockSettingsPopups
+     * toggle AND the suppression flag for exempted windows — if the user did
+     * not enable that protection, opening Settings in popup/split-screen must
+     * not contain anything). Once an incident is active, a floating Settings
+     * window counts as presence regardless of the gate: retention rules never
+     * loosen.
+     *
+     * [preventiveDeferMs] > 0 delays the PREVENTIVE start by that duration:
+     * the first sight only arms a pending start; containment engages when the
+     * deadline passes on a later evaluation. The service vetoes the pending
+     * start ([vetoPreventiveStart]) when an exempt-window event lands in the
+     * deferral window. With the default 0, semantics are unchanged: the start
+     * is immediate. Retention is never deferred or vetoes — only the start.
      */
     fun onWindows(
         snapshots: List<WindowSnapshot>,
-        floatingDetectionEnabled: Boolean = true
+        floatingDetectionEnabled: Boolean = true,
+        preventiveDeferMs: Long = 0
     ): Boolean {
         val floatingSettings = snapshots.any { it.isFloatingSettings() }
 
         if (!isIncidentActive) {
-            if (floatingDetectionEnabled && floatingSettings) {
-                startIncident(PackageConstants.SETTINGS)
+            if (!floatingDetectionEnabled || !floatingSettings) {
+                pendingPreventive = false
+                return false
             }
-            return floatingDetectionEnabled && floatingSettings
+            if (preventiveDeferMs > 0) {
+                val t = now()
+                if (!pendingPreventive) {
+                    pendingPreventive = true
+                    pendingPreventiveReadyAt = t + preventiveDeferMs
+                    return false
+                }
+                if (t < pendingPreventiveReadyAt) return false
+                pendingPreventive = false
+                startIncident(PackageConstants.SETTINGS)
+                return true
+            }
+            startIncident(PackageConstants.SETTINGS)
+            return true
         }
 
         val present = floatingSettings || snapshots.any { it.isRelevantTo(activePackages, selfPackage) }

@@ -240,6 +240,116 @@ class ProtectionShieldTest {
         )
     }
 
+    // ---------------------------------------------------------------- deferral + veto
+
+    @Test
+    fun `deferred start does not contain before deadline`() {
+        val visible = shield.onWindows(
+            listOf(window(PackageConstants.SETTINGS, area = 300_000)),
+            preventiveDeferMs = 700
+        )
+        assertFalse(visible)
+        assertFalse(shield.isIncidentActive)
+    }
+
+    @Test
+    fun `deferred start contains after deadline with floating window still present`() {
+        shield.onWindows(
+            listOf(window(PackageConstants.SETTINGS, area = 300_000)),
+            preventiveDeferMs = 700
+        )
+        now = 699
+        assertFalse(shield.onWindows(listOf(window(PackageConstants.SETTINGS, area = 300_000)), preventiveDeferMs = 700))
+        now = 701
+        assertTrue(shield.onWindows(listOf(window(PackageConstants.SETTINGS, area = 300_000)), preventiveDeferMs = 700))
+        assertTrue(shield.isIncidentActive)
+    }
+
+    @Test
+    fun `veto cancels pending deferred start`() {
+        shield.onWindows(
+            listOf(window(PackageConstants.SETTINGS, area = 300_000)),
+            preventiveDeferMs = 700
+        )
+        shield.vetoPreventiveStart()
+        now = 10_000
+        assertFalse(shield.onWindows(listOf(window(PackageConstants.SETTINGS, area = 300_000)), preventiveDeferMs = 700))
+        assertFalse(shield.isIncidentActive)
+    }
+
+    @Test
+    fun `veto without pending start is a no-op`() {
+        shield.vetoPreventiveStart()
+        now = 10_000
+        assertFalse(shield.onWindows(listOf(window(PackageConstants.SETTINGS, area = 300_000)), preventiveDeferMs = 700))
+    }
+
+    @Test
+    fun `pending disappears when floating window leaves before deadline`() {
+        shield.onWindows(
+            listOf(window(PackageConstants.SETTINGS, area = 300_000)),
+            preventiveDeferMs = 700
+        )
+        // Window gone before the deadline: pending release, no containment.
+        now = 100
+        assertFalse(shield.onWindows(listOf(window(PackageConstants.SETTINGS)), preventiveDeferMs = 700))
+        // A new sighting re-arms from now on; deadline must not leak from the old pending.
+        now = 300
+        assertFalse(shield.onWindows(listOf(window(PackageConstants.SETTINGS, area = 300_000)), preventiveDeferMs = 700))
+        now = 600
+        assertFalse(shield.isIncidentActive)
+        now = 1_001
+        assertTrue(shield.onWindows(listOf(window(PackageConstants.SETTINGS, area = 300_000)), preventiveDeferMs = 700))
+    }
+
+    @Test
+    fun `real trigger start cancels a pending preventive`() {
+        shield.onWindows(
+            listOf(window(PackageConstants.SETTINGS, area = 300_000)),
+            preventiveDeferMs = 700
+        )
+        shield.startIncident(PackageConstants.SETTINGS)
+        now = 60_000
+        assertTrue(shield.isIncidentActive)
+    }
+
+    @Test
+    fun `deferred start restarts when detection disables and re-enables mid-pending`() {
+        shield.onWindows(
+            listOf(window(PackageConstants.SETTINGS, area = 300_000)),
+            floatingDetectionEnabled = true,
+            preventiveDeferMs = 700
+        )
+        // Detection disabled (suppressed) while pending: pending must drop.
+        now = 100
+        assertFalse(
+            shield.onWindows(
+                listOf(window(PackageConstants.SETTINGS, area = 300_000)),
+                floatingDetectionEnabled = false,
+                preventiveDeferMs = 700
+            )
+        )
+        // Re-enabled later: the deadline restarts from zero.
+        now = 200
+        assertFalse(
+            shield.onWindows(
+                listOf(window(PackageConstants.SETTINGS, area = 300_000)),
+                floatingDetectionEnabled = true,
+                preventiveDeferMs = 700
+            )
+        )
+        now = 500
+        assertFalse(shield.isIncidentActive)
+        now = 901
+        assertTrue(
+            shield.onWindows(
+                listOf(window(PackageConstants.SETTINGS, area = 300_000)),
+                floatingDetectionEnabled = true,
+                preventiveDeferMs = 700
+            )
+        )
+    }
+
     // ---------------------------------------------------------------- escalation
 
     @Test
