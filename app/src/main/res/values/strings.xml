@@ -189,6 +189,8 @@
 
     <string name="protection_item_accessibility">Accessibility</string>
     <string name="protection_item_accessibility_desc">Blocks changes to accessibility permissions, which are essential for the application\'s operation.</string>
+    <string name="protection_item_settings_popups">Settings popups</string>
+    <string name="protection_item_settings_popups_desc">Contains any small Settings window, such as Bluetooth and Wi-Fi dialogs, app uninstall confirms, and split-screen Settings.</string>
 
     <string name="protection_item_developer_options">Developer Options</string>
     <string name="protection_item_developer_options_desc">Keeps Developer Options locked, preventing them from being used to disable the app.</string>
@@ -216,6 +218,8 @@
 
     <string name="protection_item_vpn">VPN Settings</string>
     <string name="protection_item_vpn_desc">Keeps VPN settings locked, preventing network-level protections from being bypassed.</string>
+    <string name="protection_item_tile_editing">Quick Settings tiles</string>
+    <string name="protection_item_tile_editing_desc">Exits the tile editing drawer of the quick settings bar, preventing toggles such as VPN from being added next to notifications.</string>
 
     <string name="protection_item_private_dns">Private DNS</string>
     <string name="protection_item_private_dns_desc">Prevents changes to Private DNS settings, avoiding domain-blocking bypasses.</string>

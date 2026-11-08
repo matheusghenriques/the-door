@@ -2,6 +2,7 @@ package io.github.matheusghenriques.thedoor.data
 
 data class ProtectionConfig(
     val blockAccessibilitySettings: Boolean = false,
+    val blockSettingsPopups: Boolean = false,
     val blockDeveloperOptions: Boolean = false,
     val blockUninstallTheDoor: Boolean = false,
     val blockAppInfo: Boolean = false,
@@ -16,5 +17,6 @@ data class ProtectionConfig(
     val blockFirefoxBlockNSFW: Boolean = false,
     val blockSecureFolderAddApps: Boolean = false,
     val blockInstallUnknownApps: Boolean = false,
+    val blockTileEditing: Boolean = false,
     val blockAutoBlocker: Boolean = false,
 )

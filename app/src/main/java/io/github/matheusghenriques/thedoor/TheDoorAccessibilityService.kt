@@ -477,10 +477,10 @@ class TheDoorAccessibilityService : AccessibilityService() {
         }
 
         val wasShown = overlayManager.isShown
-        // Preventive floating-Settings detection is part of the accessibility
-        // protection: if the user did not enable that toggle, opening Settings
-        // in popup/split-screen must not contain anything.
-        val floatingDetectionEnabled = protectionConfig.get().blockAccessibilitySettings
+        // Preventive floating-Settings detection has its own toggle: it covers
+        // every small Settings window (pairing/Wi-Fi dialogs, uninstall confirms,
+        // split-screen), which is broader than the accessibility screens.
+        val floatingDetectionEnabled = protectionConfig.get().blockSettingsPopups
         if (shield.onWindows(snapshots, floatingDetectionEnabled)) {
             if (!wasShown) {
                 overlayManager.show(cachedRedirectConfig.theDoorPhrase)
@@ -542,7 +542,7 @@ class TheDoorAccessibilityService : AccessibilityService() {
      */
     private fun scanWindowsForQsEdit(windows: List<AccessibilityWindowInfo>): Boolean {
         val cfg = protectionConfig.get()
-        if (!cfg.blockVpn) return false
+        if (!cfg.blockTileEditing) return false
         val keywords = BLOCKED_QS_EDIT
         for (w in windows) {
             val root = try {

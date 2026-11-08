@@ -87,6 +87,13 @@ fun ProtectionConfigScreen(
             )
             Spacer(Modifier.height(8.dp))
             ProtectionItem(
+                checked = config.blockSettingsPopups,
+                onCheckedChange = { config = config.copy(blockSettingsPopups = it) },
+                title = stringResource(R.string.protection_item_settings_popups),
+                subtitle = stringResource(R.string.protection_item_settings_popups_desc)
+            )
+            Spacer(Modifier.height(8.dp))
+            ProtectionItem(
                 checked = config.blockDeveloperOptions,
                 onCheckedChange = { config = config.copy(blockDeveloperOptions = it) },
                 title = stringResource(R.string.protection_item_developer_options),
@@ -139,6 +146,13 @@ fun ProtectionConfigScreen(
                 onCheckedChange = { config = config.copy(blockVpn = it) },
                 title = stringResource(R.string.protection_item_vpn),
                 subtitle = stringResource(R.string.protection_item_vpn_desc)
+            )
+            Spacer(Modifier.height(8.dp))
+            ProtectionItem(
+                checked = config.blockTileEditing,
+                onCheckedChange = { config = config.copy(blockTileEditing = it) },
+                title = stringResource(R.string.protection_item_tile_editing),
+                subtitle = stringResource(R.string.protection_item_tile_editing_desc)
             )
             Spacer(Modifier.height(8.dp))
             ProtectionItem(

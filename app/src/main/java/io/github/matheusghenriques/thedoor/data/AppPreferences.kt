@@ -134,48 +134,58 @@ class AppPreferences(private val context: Context) {
         }
     }
 
-    private fun protectionConfigToJson(config: ProtectionConfig): String {
-        val obj = JSONObject().apply {
-            put("blockAccessibilitySettings", config.blockAccessibilitySettings)
-            put("blockDeveloperOptions", config.blockDeveloperOptions)
-            put("blockUninstallTheDoor", config.blockUninstallTheDoor)
-            put("blockAppInfo", config.blockAppInfo)
-            put("blockLanguageChanges", config.blockLanguageChanges)
-            put("blockPowerMenu", config.blockPowerMenu)
-            put("blockVpn", config.blockVpn)
-            put("blockPrivateDns", config.blockPrivateDns)
-            put("blockUninstallFirefox", config.blockUninstallFirefox)
-            put("blockUninstallRethink", config.blockUninstallRethink)
-            put("blockFirefoxSettings", config.blockFirefoxSettings)
-            put("blockFirefoxUblockOrigin", config.blockFirefoxUblockOrigin)
-            put("blockFirefoxBlockNSFW", config.blockFirefoxBlockNSFW)
-            put("blockSecureFolderAddApps", config.blockSecureFolderAddApps)
-            put("blockInstallUnknownApps", config.blockInstallUnknownApps)
-            put("blockAutoBlocker", config.blockAutoBlocker)
-        }
-        return obj.toString()
-    }
+    private fun protectionConfigToJson(config: ProtectionConfig): String =
+        protectionConfigJson(config)
 
-    private fun parseProtectionConfig(json: String): ProtectionConfig {
-        if (json.isBlank()) return ProtectionConfig()
-        val obj = JSONObject(json)
-        return ProtectionConfig(
-            blockAccessibilitySettings = obj.optBoolean("blockAccessibilitySettings", false),
-            blockDeveloperOptions = obj.optBoolean("blockDeveloperOptions", false),
-            blockUninstallTheDoor = obj.optBoolean("blockUninstallTheDoor", false),
-            blockAppInfo = obj.optBoolean("blockAppInfo", false),
-            blockLanguageChanges = obj.optBoolean("blockLanguageChanges", false),
-            blockPowerMenu = obj.optBoolean("blockPowerMenu", false),
-            blockVpn = obj.optBoolean("blockVpn", false),
-            blockPrivateDns = obj.optBoolean("blockPrivateDns", false),
-            blockUninstallFirefox = obj.optBoolean("blockUninstallFirefox", false),
-            blockUninstallRethink = obj.optBoolean("blockUninstallRethink", false),
-            blockFirefoxSettings = obj.optBoolean("blockFirefoxSettings", false),
-            blockFirefoxUblockOrigin = obj.optBoolean("blockFirefoxUblockOrigin", false),
-            blockFirefoxBlockNSFW = obj.optBoolean("blockFirefoxBlockNSFW", false),
-            blockSecureFolderAddApps = obj.optBoolean("blockSecureFolderAddApps", false),
-            blockInstallUnknownApps = obj.optBoolean("blockInstallUnknownApps", false),
-            blockAutoBlocker = obj.optBoolean("blockAutoBlocker", false),
-        )
+    private fun parseProtectionConfig(json: String): ProtectionConfig =
+        parseProtectionConfigJson(json)
+}
+
+internal fun protectionConfigJson(config: ProtectionConfig): String {
+    val obj = JSONObject().apply {
+        put("blockAccessibilitySettings", config.blockAccessibilitySettings)
+        put("blockSettingsPopups", config.blockSettingsPopups)
+        put("blockDeveloperOptions", config.blockDeveloperOptions)
+        put("blockUninstallTheDoor", config.blockUninstallTheDoor)
+        put("blockAppInfo", config.blockAppInfo)
+        put("blockLanguageChanges", config.blockLanguageChanges)
+        put("blockPowerMenu", config.blockPowerMenu)
+        put("blockVpn", config.blockVpn)
+        put("blockPrivateDns", config.blockPrivateDns)
+        put("blockUninstallFirefox", config.blockUninstallFirefox)
+        put("blockUninstallRethink", config.blockUninstallRethink)
+        put("blockFirefoxSettings", config.blockFirefoxSettings)
+        put("blockFirefoxUblockOrigin", config.blockFirefoxUblockOrigin)
+        put("blockFirefoxBlockNSFW", config.blockFirefoxBlockNSFW)
+        put("blockSecureFolderAddApps", config.blockSecureFolderAddApps)
+        put("blockInstallUnknownApps", config.blockInstallUnknownApps)
+        put("blockTileEditing", config.blockTileEditing)
+        put("blockAutoBlocker", config.blockAutoBlocker)
     }
+    return obj.toString()
+}
+
+internal fun parseProtectionConfigJson(json: String): ProtectionConfig {
+    if (json.isBlank()) return ProtectionConfig()
+    val obj = JSONObject(json)
+    return ProtectionConfig(
+        blockAccessibilitySettings = obj.optBoolean("blockAccessibilitySettings", false),
+        blockSettingsPopups = obj.optBoolean("blockSettingsPopups", false),
+        blockDeveloperOptions = obj.optBoolean("blockDeveloperOptions", false),
+        blockUninstallTheDoor = obj.optBoolean("blockUninstallTheDoor", false),
+        blockAppInfo = obj.optBoolean("blockAppInfo", false),
+        blockLanguageChanges = obj.optBoolean("blockLanguageChanges", false),
+        blockPowerMenu = obj.optBoolean("blockPowerMenu", false),
+        blockVpn = obj.optBoolean("blockVpn", false),
+        blockPrivateDns = obj.optBoolean("blockPrivateDns", false),
+        blockUninstallFirefox = obj.optBoolean("blockUninstallFirefox", false),
+        blockUninstallRethink = obj.optBoolean("blockUninstallRethink", false),
+        blockFirefoxSettings = obj.optBoolean("blockFirefoxSettings", false),
+        blockFirefoxUblockOrigin = obj.optBoolean("blockFirefoxUblockOrigin", false),
+        blockFirefoxBlockNSFW = obj.optBoolean("blockFirefoxBlockNSFW", false),
+        blockSecureFolderAddApps = obj.optBoolean("blockSecureFolderAddApps", false),
+        blockInstallUnknownApps = obj.optBoolean("blockInstallUnknownApps", false),
+        blockTileEditing = obj.optBoolean("blockTileEditing", false),
+        blockAutoBlocker = obj.optBoolean("blockAutoBlocker", false),
+    )
 }

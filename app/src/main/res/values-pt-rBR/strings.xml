@@ -157,6 +157,8 @@
     <string name="protection_section_recommended">Recomendadas</string>
     <string name="protection_item_accessibility">Acessibilidade</string>
     <string name="protection_item_accessibility_desc">Bloqueia alterações nas permissões de acessibilidade, vitais para o funcionamento do aplicativo.</string>
+    <string name="protection_item_settings_popups">Pop-ups de Configurações</string>
+    <string name="protection_item_settings_popups_desc">Contém qualquer janela pequena de Configurações, como diálogos de Bluetooth e Wi-Fi, confirmações de desinstalação e Configurações em tela dividida.</string>
     <string name="protection_item_developer_options">Opções do desenvolvedor</string>
     <string name="protection_item_developer_options_desc">Mantém as opções do desenvolvedor bloqueadas, que podem ser usadas para desativar o app.</string>
     <string name="protection_item_uninstall_door">Desinstalação do The Door</string>
@@ -175,6 +177,8 @@
     <string name="protection_item_power_menu_desc">Desativa o reinício em modo de segurança, que permite a desinstalação do The Door. O modo de segurança é uma funcionalidade do Android que pode ser útil em casos específicos. Também bloqueia a tela ao abrir o diálogo de configurações do botão lateral.</string>
     <string name="protection_item_vpn">Configurações de VPN</string>
     <string name="protection_item_vpn_desc">Mantém as configurações de VPN bloqueadas, impedindo burlar proteçöes em nível de rede.</string>
+    <string name="protection_item_tile_editing">Botões rápidos (tiles)</string>
+    <string name="protection_item_tile_editing_desc">Fecha o painel de edição dos botões rápidos, impedindo que controles como o de VPN sejam adicionados ao lado das notificações.</string>
     <string name="protection_item_private_dns">DNS privado</string>
     <string name="protection_item_private_dns_desc">Previne alterações de DNS privado, impedindo contornar bloqueios de domínios.</string>
     <string name="protection_item_uninstall_firefox">Desinstalação do Firefox</string>
