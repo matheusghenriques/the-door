@@ -68,9 +68,7 @@ class RedirectConfigViewModel(app: Application) : AndroidViewModel(app) {
                 }
 
             availableApps = installed.filter {
-                it.packageName != selfPackage && !io.github.matheusghenriques.thedoor.data.isSystemApp(
-                    it
-                ) && it.packageName in launcherPackages && it.packageName !in blockedOrLimited
+                it.packageName != selfPackage && it.packageName in launcherPackages && it.packageName !in blockedOrLimited
             }.mapNotNull {
                 try {
                     AppInfo(

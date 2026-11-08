@@ -1,7 +1,6 @@
 package io.github.matheusghenriques.thedoor.data
 
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
 
@@ -13,8 +12,4 @@ fun getLauncherPackages(pm: PackageManager): Set<String> {
         @Suppress("DEPRECATION") pm.queryIntentActivities(intent, 0)
     }
     return activities.mapNotNull { it.activityInfo?.packageName }.toSet()
-}
-
-fun isSystemApp(ai: ApplicationInfo): Boolean {
-    return (ai.flags and (ApplicationInfo.FLAG_SYSTEM or ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) != 0
 }

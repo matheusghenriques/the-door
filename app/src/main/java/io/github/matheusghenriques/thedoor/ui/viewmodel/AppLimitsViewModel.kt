@@ -65,9 +65,7 @@ class AppLimitsViewModel(app: Application) : AndroidViewModel(app) {
                     @Suppress("DEPRECATION") pm.getInstalledApplications(PackageManager.GET_META_DATA)
                 }
                 installed.filter {
-                    it.packageName != selfPackage && !io.github.matheusghenriques.thedoor.data.isSystemApp(
-                        it
-                    ) && it.packageName in launcherPackages
+                    it.packageName != selfPackage && it.packageName in launcherPackages
                 }.sortedBy { it.loadLabel(pm).toString().lowercase() }
             }
             val result = mutableListOf<AppInfo>()
