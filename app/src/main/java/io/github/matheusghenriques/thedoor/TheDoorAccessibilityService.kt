@@ -415,6 +415,22 @@ class TheDoorAccessibilityService : AccessibilityService() {
     }
 
     /**
+     * Device-credential challenge screens (ConfirmLockPassword* — the Secure Folder
+     * PIN fallback, lock-screen confirms, Play Store install confirms) are compact
+     * windows of the SETTINGS package: without this exclusion, blockSettingsPopups
+     * would contain them mid-auth and lock the user out. Matched by className, not
+     * window text, because the title is localized while the class is stable.
+     * Cleared when a non-View activity class reports outside this screen group.
+     */
+    private var suppressFloatingSettings = false
+
+    private fun updateFloatingSettingsSuppression(pkg: String, className: String) {
+        if (className.startsWith("android.view.") || className.startsWith("android.widget.")) return
+        suppressFloatingSettings =
+            pkg == PackageConstants.SETTINGS && className.contains("ConfirmLockPassword")
+    }
+
+    /**
      * Evaluates the window set and applies the containment overlay decision.
      * Throttled for event-driven calls; pass force=true for poll/re-assert paths.
      *
@@ -477,10 +493,11 @@ class TheDoorAccessibilityService : AccessibilityService() {
         }
 
         val wasShown = overlayManager.isShown
-        // Preventive floating-Settings detection has its own toggle: it covers
-        // every small Settings window (pairing/Wi-Fi dialogs, uninstall confirms,
-        // split-screen), which is broader than the accessibility screens.
-        val floatingDetectionEnabled = protectionConfig.get().blockSettingsPopups
+        // Preventive floating-Settings detection has its own toggle; device-credential
+        // challenge screens (Secure Folder PIN, etc.) are exempted so authentication
+        // is never crushed by the containment.
+        val floatingDetectionEnabled =
+            protectionConfig.get().blockSettingsPopups && !suppressFloatingSettings
         if (shield.onWindows(snapshots, floatingDetectionEnabled)) {
             if (!wasShown) {
                 overlayManager.show(cachedRedirectConfig.theDoorPhrase)
@@ -671,12 +688,10 @@ class TheDoorAccessibilityService : AccessibilityService() {
 
         if (!setupComplete) return
 
-        if (event.eventType == AccessibilityEvent.TYPE_WINDOWS_CHANGED) {
-            assertProtectionOverlay()
-            return
-        }
-
         val packageName = event.packageName?.toString() ?: return
+        val className = event.className?.toString() ?: ""
+
+        updateFloatingSettingsSuppression(packageName, className)
 
         Log.d(
             "DoorBug",
@@ -684,6 +699,11 @@ class TheDoorAccessibilityService : AccessibilityService() {
                 event.text.joinToString(" ")
             }\" contentDesc=\"${event.contentDescription}\""
         )
+
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOWS_CHANGED) {
+            assertProtectionOverlay()
+            return
+        }
 
         // Throttled containment evaluation: preventive floating-window detection and
         // content-based keyword scan. Never suppresses the keyword branches below.
@@ -699,8 +719,6 @@ class TheDoorAccessibilityService : AccessibilityService() {
                 return
             }
         }
-
-        val className = event.className?.toString() ?: ""
 
         if (protectionConfig.get().blockPowerMenu && packageName == PackageConstants.SYSTEM_UI && className.contains(
                 "SamsungGlobalActionsDialog"
