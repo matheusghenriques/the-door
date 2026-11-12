@@ -173,6 +173,8 @@
     <string name="protection_item_unknown_install_desc">Bloqueia a tela de configurações que permite instalar aplicativos de fontes desconhecidas, impedindo apps que possam burlar as proteções. Atenção: quando ativado, pode não ser possível atualizar o próprio The Door.</string>
     <string name="protection_item_auto_blocker">Bloqueador automático</string>
     <string name="protection_item_auto_blocker_desc">Impede a desativação do Bloqueador automático, mantendo ativas as proteções contra ameaças e atividades suspeitas.</string>
+    <string name="protection_item_auto_restart">Reinício automático</string>
+    <string name="protection_item_auto_restart_desc">Bloqueia a tela de reinício automático da Manutenção do aparelho Samsung, impedindo que um reinício programado interrompa os bloqueios.</string>
     <string name="protection_item_power_menu">Modo de segurança</string>
     <string name="protection_item_power_menu_desc">Desativa o reinício em modo de segurança, que permite a desinstalação do The Door. O modo de segurança é uma funcionalidade do Android que pode ser útil em casos específicos. Também bloqueia a tela ao abrir o diálogo de configurações do botão lateral.</string>
     <string name="protection_item_vpn">Configurações de VPN</string>

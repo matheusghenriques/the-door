@@ -26,7 +26,8 @@ class ProtectionConfigJsonTest {
             blockSecureFolderAddApps = true,
             blockInstallUnknownApps = false,
             blockTileEditing = true,
-            blockAutoBlocker = false
+            blockAutoBlocker = false,
+            blockAutoRestart = true
         )
         assertEquals(config, parseProtectionConfigJson(protectionConfigJson(config)))
     }
@@ -39,14 +40,15 @@ class ProtectionConfigJsonTest {
 
     @Test
     fun parseProtectionConfigJson_missingNewFields_defaultsToFalse() {
-        // Installed configs written before blockSettingsPopups/blockTileEditing
-        // existed must upgrade cleanly with both toggles off.
+        // Installed configs written before blockSettingsPopups/blockTileEditing/
+        // blockAutoRestart existed must upgrade cleanly with both toggles off.
         val legacy = """{"blockAccessibilitySettings":true,"blockVpn":true,"blockPowerMenu":true}"""
         val parsed = parseProtectionConfigJson(legacy)
         assertEquals(true, parsed.blockAccessibilitySettings)
         assertEquals(true, parsed.blockVpn)
         assertEquals(false, parsed.blockSettingsPopups)
         assertEquals(false, parsed.blockTileEditing)
+        assertEquals(false, parsed.blockAutoRestart)
     }
 
     @Test
@@ -54,6 +56,7 @@ class ProtectionConfigJsonTest {
         val json = protectionConfigJson(ProtectionConfig(blockSettingsPopups = true))
         assertTrue(json.contains("blockSettingsPopups"))
         assertTrue(json.contains("blockTileEditing"))
+        assertTrue(json.contains("blockAutoRestart"))
         assertTrue(json.contains("blockAccessibilitySettings"))
     }
 }

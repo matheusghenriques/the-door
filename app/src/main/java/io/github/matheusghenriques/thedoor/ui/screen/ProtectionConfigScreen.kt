@@ -176,6 +176,13 @@ fun ProtectionConfigScreen(
                 subtitle = stringResource(R.string.protection_item_auto_blocker_desc)
             )
             Spacer(Modifier.height(8.dp))
+            ProtectionItem(
+                checked = config.blockAutoRestart,
+                onCheckedChange = { config = config.copy(blockAutoRestart = it) },
+                title = stringResource(R.string.protection_item_auto_restart),
+                subtitle = stringResource(R.string.protection_item_auto_restart_desc)
+            )
+            Spacer(Modifier.height(8.dp))
             if (showFirefoxTiles) {
                 ProtectionItem(
                     checked = config.blockUninstallFirefox,

@@ -89,7 +89,8 @@ private val ProtectionConfigSaver = listSaver<ProtectionConfig?, Boolean>(
             config.blockInstallUnknownApps,
             config.blockAutoBlocker,
             config.blockSettingsPopups,
-            config.blockTileEditing
+            config.blockTileEditing,
+            config.blockAutoRestart
         ) else emptyList()
     },
     restore = { list ->
@@ -106,7 +107,8 @@ private val ProtectionConfigSaver = listSaver<ProtectionConfig?, Boolean>(
             blockInstallUnknownApps = list[14],
             blockAutoBlocker = list[15],
             blockSettingsPopups = list[16],
-            blockTileEditing = list[17]
+            blockTileEditing = list[17],
+            blockAutoRestart = list[18]
         )
     }
 )

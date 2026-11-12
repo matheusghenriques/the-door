@@ -785,6 +785,14 @@ class TheDoorAccessibilityService : AccessibilityService() {
             return
         }
 
+        if (packageName == PackageConstants.AUTO_RESTART) {
+            val cfg = protectionConfig.get()
+            if (cfg.blockAutoRestart && className.contains("AutoRestartActivity")) {
+                triggerProtectionBlock(PackageConstants.AUTO_RESTART)
+                return
+            }
+        }
+
         val isNewApp = lastActiveApp != packageName
 
         if (isNewApp) {

@@ -212,6 +212,8 @@
 
     <string name="protection_item_auto_blocker">Auto Blocker</string>
     <string name="protection_item_auto_blocker_desc">Prevents Auto Blocker from being turned off, keeping protections against threats and suspicious activity active.</string>
+    <string name="protection_item_auto_restart">Auto restart</string>
+    <string name="protection_item_auto_restart_desc">Blocks the scheduled auto-restart screen of Samsung Device care, preventing a timed restart from disrupting the blocks.</string>
 
     <string name="protection_item_power_menu">Safe Mode</string>
     <string name="protection_item_power_menu_desc">Disables rebooting into Safe Mode, which could allow The Door to be uninstalled. Safe Mode is an Android feature that may still be useful in specific situations. Also locks the screen when the side button settings dialog is opened.</string>

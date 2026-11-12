@@ -19,4 +19,5 @@ data class ProtectionConfig(
     val blockInstallUnknownApps: Boolean = false,
     val blockTileEditing: Boolean = false,
     val blockAutoBlocker: Boolean = false,
+    val blockAutoRestart: Boolean = false,
 )

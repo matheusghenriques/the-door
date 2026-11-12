@@ -161,6 +161,7 @@ internal fun protectionConfigJson(config: ProtectionConfig): String {
         put("blockInstallUnknownApps", config.blockInstallUnknownApps)
         put("blockTileEditing", config.blockTileEditing)
         put("blockAutoBlocker", config.blockAutoBlocker)
+        put("blockAutoRestart", config.blockAutoRestart)
     }
     return obj.toString()
 }
@@ -187,5 +188,6 @@ internal fun parseProtectionConfigJson(json: String): ProtectionConfig {
         blockInstallUnknownApps = obj.optBoolean("blockInstallUnknownApps", false),
         blockTileEditing = obj.optBoolean("blockTileEditing", false),
         blockAutoBlocker = obj.optBoolean("blockAutoBlocker", false),
+        blockAutoRestart = obj.optBoolean("blockAutoRestart", false),
     )
 }
